@@ -1,28 +1,19 @@
 'use client'
 
-import { Suspense, useState, useCallback, useEffect, useRef } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { Suspense, useState } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import ModelSelector from '@/components/ModelSelector'
 import SettingsBar, { type Settings } from '@/components/SettingsBar'
-import JsonEditor from '@/components/JsonEditor'
-import ImageResult from '@/components/ImageResult'
 import { useCredits } from '@/lib/credits/CreditProvider'
 import { AI_MODELS } from '@/lib/ai/models'
 
-interface GenerationState {
-  id: string | null
-  status: 'idle' | 'pending' | 'processing' | 'completed' | 'failed'
-  imageUrl: string | null
-  error?: string
-  jsonPrompt: string
-}
-
 function DashboardContent() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const initialPrompt = searchParams.get('prompt') || ''
-  const { balance, refreshBalance } = useCredits()
+  const { balance } = useCredits()
 
   const [prompt, setPrompt] = useState(initialPrompt)
   const [model, setModel] = useState('sonnet-4.6')
@@ -31,157 +22,49 @@ function DashboardContent() {
     resolution: '2K',
     style_preset: 'Fri',
   })
-  const [advancedMode, setAdvancedMode] = useState(false)
-  const [jsonOverride, setJsonOverride] = useState('')
-  const [generation, setGeneration] = useState<GenerationState>({
-    id: null,
-    status: 'idle',
-    imageUrl: null,
-    jsonPrompt: '',
-  })
+  const [isExpanding, setIsExpanding] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const selectedModel = AI_MODELS.find(m => m.id === model)
+  const creditCost = selectedModel?.creditCost ?? 2
+  const hasInsufficientCredits = balance !== null && balance < creditCost
 
-  const stopPolling = useCallback(() => {
-    if (pollRef.current) {
-      clearInterval(pollRef.current)
-      pollRef.current = null
-    }
-  }, [])
-
-  useEffect(() => {
-    return () => stopPolling()
-  }, [stopPolling])
-
-  const pollStatus = useCallback(
-    (generationId: string) => {
-      pollRef.current = setInterval(async () => {
-        try {
-          const res = await fetch(`/api/generate/${generationId}/status`)
-          if (!res.ok) {
-            stopPolling()
-            setGeneration(prev => ({
-              ...prev,
-              status: 'failed',
-              error: 'Kunne ikke hente status',
-            }))
-            return
-          }
-
-          const data = await res.json()
-
-          if (data.status === 'completed') {
-            stopPolling()
-            setGeneration(prev => ({
-              ...prev,
-              status: 'completed',
-              imageUrl: data.image_url,
-            }))
-          } else if (data.status === 'failed') {
-            stopPolling()
-            setGeneration(prev => ({
-              ...prev,
-              status: 'failed',
-              error: data.error_message || 'Generering feilet',
-            }))
-          }
-        } catch {
-          stopPolling()
-          setGeneration(prev => ({
-            ...prev,
-            status: 'failed',
-            error: 'Nettverksfeil under polling',
-          }))
-        }
-      }, 3000)
-    },
-    [stopPolling]
-  )
-
-  async function handleGenerate() {
+  async function handleExpand() {
     if (!prompt.trim()) return
 
-    stopPolling()
-    setGeneration({
-      id: null,
-      status: 'pending',
-      imageUrl: null,
-      jsonPrompt: '',
-    })
+    setIsExpanding(true)
+    setError(null)
 
     try {
-      const body: Record<string, unknown> = { prompt, settings, model }
-
-      if (advancedMode && jsonOverride.trim()) {
-        body.jsonOverride = jsonOverride
-      }
-
-      const res = await fetch('/api/generate', {
+      const res = await fetch('/api/expand', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ prompt, settings, model }),
       })
 
       if (!res.ok) {
         const data = await res.json()
-        if (data.code === 'INSUFFICIENT_CREDITS') {
-          setGeneration(prev => ({
-            ...prev,
-            status: 'failed',
-            error: 'INSUFFICIENT_CREDITS',
-          }))
-          return
-        }
-        setGeneration(prev => ({
-          ...prev,
-          status: 'failed',
-          error: data.error || 'Feil ved opprettelse',
-        }))
+        setError(data.error || 'Feil ved utvidelse av prompt')
+        setIsExpanding(false)
         return
       }
 
       const data = await res.json()
 
-      const jsonStr = data.json_prompt
-        ? JSON.stringify(data.json_prompt, null, 2)
-        : ''
-
-      setGeneration({
-        id: data.id,
-        status: data.status || 'processing',
-        imageUrl: data.image_url || null,
-        jsonPrompt: jsonStr,
-      })
-
-      if (advancedMode && jsonStr && !jsonOverride.trim()) {
-        setJsonOverride(jsonStr)
-      }
-
-      // Refresh credit balance after deduction
-      refreshBalance()
-
-      if (data.status !== 'completed' && data.status !== 'failed') {
-        pollStatus(data.id)
-      }
-    } catch {
-      setGeneration(prev => ({
-        ...prev,
-        status: 'failed',
-        error: 'Nettverksfeil',
+      // Store in sessionStorage for the review page
+      sessionStorage.setItem('pxl_generation', JSON.stringify({
+        prompt,
+        settings,
+        model,
+        jsonPrompt: data.jsonPrompt,
       }))
+
+      router.push('/generer')
+    } catch {
+      setError('Nettverksfeil')
+      setIsExpanding(false)
     }
   }
-
-  function handleRetry() {
-    handleGenerate()
-  }
-
-  const isGenerating =
-    generation.status === 'pending' || generation.status === 'processing'
-
-  const selectedModel = AI_MODELS.find(m => m.id === model)
-  const creditCost = selectedModel?.creditCost ?? 2
-  const isInsufficientCredits = generation.error === 'INSUFFICIENT_CREDITS'
 
   return (
     <main className="relative z-10 mx-auto max-w-5xl px-6 py-10">
@@ -229,56 +112,15 @@ function DashboardContent() {
           <SettingsBar settings={settings} onChange={setSettings} />
         </div>
 
-        {/* Advanced Mode Toggle */}
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            role="switch"
-            aria-checked={advancedMode}
-            onClick={() => setAdvancedMode(!advancedMode)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
-              advancedMode ? 'bg-amber-600' : 'bg-[var(--surface-overlay)]'
-            }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200 ${
-                advancedMode ? 'translate-x-6' : 'translate-x-1'
-              }`}
-            />
-          </button>
-          <span className="text-sm text-[var(--text-muted)]">Avansert modus</span>
-        </div>
-
-        {/* JSON Editor (Advanced Mode) */}
-        {advancedMode && (
-          <div className="animate-slide-up">
-            <label className="mb-2 block text-sm font-medium text-[var(--text-secondary)]">
-              JSON Prompt Override
-            </label>
-            <p className="mb-2.5 text-xs text-[var(--text-faint)]">
-              Rediger den utvidede JSON-prompten direkte. La stå tom for automatisk utvidelse.
-            </p>
-            <JsonEditor
-              value={jsonOverride || generation.jsonPrompt}
-              onChange={setJsonOverride}
-            />
+        {/* Error */}
+        {error && (
+          <div className="animate-slide-up rounded-ds-md border border-rose-500/20 bg-[var(--error-muted)] px-4 py-3 text-center">
+            <p className="text-sm text-rose-400">{error}</p>
           </div>
         )}
 
-        {/* Generate Button */}
-        <button
-          type="button"
-          onClick={handleGenerate}
-          disabled={isGenerating || !prompt.trim()}
-          className={`w-full rounded-ds-md bg-gradient-to-r from-amber-600 to-amber-500 px-6 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:from-amber-500 hover:to-amber-400 focus-ring disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:from-amber-600 disabled:hover:to-amber-500 ${
-            isGenerating ? 'animate-pulse-glow' : 'shadow-lg shadow-amber-600/20 hover:shadow-amber-500/30'
-          }`}
-        >
-          {isGenerating ? 'Genererer...' : `Generer bilde (${creditCost} ${creditCost === 1 ? 'kreditt' : 'kreditter'})`}
-        </button>
-
         {/* Insufficient credits warning */}
-        {isInsufficientCredits && (
+        {hasInsufficientCredits && (
           <div className="animate-slide-up rounded-ds-md border border-amber-500/30 bg-amber-500/[0.07] px-4 py-3 text-center">
             <p className="text-sm text-amber-300">
               Ikke nok kreditter.{' '}
@@ -289,29 +131,17 @@ function DashboardContent() {
           </div>
         )}
 
-        {/* Result */}
-        <ImageResult
-          imageUrl={generation.imageUrl}
-          status={isInsufficientCredits ? 'idle' : generation.status}
-          error={isInsufficientCredits ? undefined : generation.error}
-          onRetry={handleRetry}
-        />
-
-        {/* Show expanded JSON after generation (non-advanced mode) */}
-        {!advancedMode && generation.jsonPrompt && generation.status === 'completed' && (
-          <details className="rounded-ds-md border border-[var(--border)] transition-colors duration-200">
-            <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-[var(--text-muted)] transition-colors duration-200 hover:text-[var(--text-secondary)]">
-              Vis utvidet JSON-prompt
-            </summary>
-            <div className="border-t border-[var(--border)]">
-              <JsonEditor
-                value={generation.jsonPrompt}
-                onChange={() => {}}
-                readOnly
-              />
-            </div>
-          </details>
-        )}
+        {/* Expand Button */}
+        <button
+          type="button"
+          onClick={handleExpand}
+          disabled={isExpanding || !prompt.trim() || hasInsufficientCredits}
+          className={`w-full rounded-ds-md bg-gradient-to-r from-amber-600 to-amber-500 px-6 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:from-amber-500 hover:to-amber-400 focus-ring disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:from-amber-600 disabled:hover:to-amber-500 ${
+            isExpanding ? 'animate-pulse-glow' : 'shadow-lg shadow-amber-600/20 hover:shadow-amber-500/30'
+          }`}
+        >
+          {isExpanding ? 'Utvider prompt...' : `Utvid prompt (${creditCost} ${creditCost === 1 ? 'kreditt' : 'kreditter'})`}
+        </button>
       </div>
     </main>
   )
