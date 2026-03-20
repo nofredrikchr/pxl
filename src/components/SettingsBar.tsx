@@ -61,7 +61,7 @@ export default function SettingsBar({ settings, onChange }: SettingsBarProps) {
         onChange={v => update('aspect_ratio', v)}
       />
       <SelectField
-        label="Opplosning"
+        label="Oppløsning"
         value={settings.resolution}
         options={[
           { value: '1K', label: '1K' },

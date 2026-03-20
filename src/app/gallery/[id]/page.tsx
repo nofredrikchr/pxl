@@ -182,7 +182,7 @@ export default function GalleryDetailPage() {
                 {generation.settings && (
                   <>
                     <DetailRow label="Bildeformat" value={generation.settings.aspect_ratio} />
-                    <DetailRow label="Opplosning" value={generation.settings.resolution} />
+                    <DetailRow label="Oppløsning" value={generation.settings.resolution} />
                     <DetailRow label="Stilpreset" value={generation.settings.style_preset} />
                   </>
                 )}

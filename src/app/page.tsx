@@ -283,7 +283,7 @@ function DashboardContent() {
             <p className="text-sm text-amber-300">
               Ikke nok kreditter.{' '}
               <Link href="/priser" className="font-medium underline underline-offset-2 hover:text-amber-200">
-                Kjop flere kreditter
+                Kjøp flere kreditter
               </Link>
             </p>
           </div>

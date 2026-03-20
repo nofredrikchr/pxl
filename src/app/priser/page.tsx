@@ -54,9 +54,9 @@ function PriserContent() {
       )}
 
       {cancelled && (
-        <div className="mb-8 animate-slide-up rounded-ds-md border border-[var(--border)] bg-[var(--surface-raised)]/50 px-5 py-4 text-center">
+        <div className="mb-8 animate-slide-up rounded-ds-md border border-[var(--border)] bg-[var(--surface-raised)] px-5 py-4 text-center">
           <p className="text-sm text-[var(--text-muted)]">
-            Kjopet ble avbrutt. Du kan prove igjen nar som helst.
+            Kjøpet ble avbrutt. Du kan prøve igjen når som helst.
           </p>
         </div>
       )}
@@ -66,7 +66,7 @@ function PriserContent() {
           Kreditter
         </h1>
         <p className="mt-2 text-sm text-[var(--text-muted)]">
-          Kjop kreditter for a generere bilder. Jo storre pakke, jo lavere pris per kreditt.
+          Kjøp kreditter for å generere bilder. Jo større pakke, jo lavere pris per kreditt.
         </p>
       </div>
 
@@ -78,12 +78,12 @@ function PriserContent() {
             className={`relative flex flex-col rounded-ds-lg border p-6 transition-all duration-200 ${
               pkg.popular
                 ? 'border-amber-500/50 bg-amber-500/[0.04] shadow-glow'
-                : 'border-[var(--border)] bg-[var(--surface-raised)]/50 hover:border-[var(--border-hover)]'
+                : 'border-[var(--border-hover)]/30 bg-[var(--surface-raised)] hover:border-[var(--border-hover)]'
             }`}
           >
             {pkg.popular && (
-              <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-400">
-                Mest populaer
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full border border-amber-500/30 bg-[var(--surface)] px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-amber-400">
+                Mest populær
               </span>
             )}
 
@@ -110,10 +110,10 @@ function PriserContent() {
               className={`mt-auto w-full rounded-ds-md px-4 py-3 text-sm font-semibold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-40 ${
                 pkg.popular
                   ? 'bg-gradient-to-r from-amber-600 to-amber-500 text-white shadow-lg shadow-amber-600/20 hover:from-amber-500 hover:to-amber-400 hover:shadow-amber-500/30'
-                  : 'border border-[var(--border)] bg-[var(--surface-overlay)] text-[var(--text-primary)] hover:border-[var(--border-hover)] hover:bg-[var(--surface-raised)]'
+                  : 'border border-[var(--border-hover)]/30 bg-[var(--surface-overlay)] text-[var(--text-primary)] hover:border-[var(--border-hover)] hover:bg-[var(--surface-raised)]'
               }`}
             >
-              {loadingId === pkg.id ? 'Sender...' : 'Kjop'}
+              {loadingId === pkg.id ? 'Sender...' : 'Kjøp'}
             </button>
           </div>
         ))}
@@ -127,7 +127,7 @@ function PriserContent() {
         <div className="overflow-hidden rounded-ds-md border border-[var(--border)]">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[var(--border)] bg-[var(--surface-raised)]/50">
+              <tr className="border-b border-[var(--border)] bg-[var(--surface-raised)]">
                 <th className="px-4 py-2.5 text-left font-medium text-[var(--text-muted)]">Modell</th>
                 <th className="px-4 py-2.5 text-left font-medium text-[var(--text-muted)]">Kategori</th>
                 <th className="px-4 py-2.5 text-right font-medium text-[var(--text-muted)]">Kreditter</th>
