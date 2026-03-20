@@ -71,50 +71,57 @@ function PriserContent() {
       </div>
 
       {/* Packages */}
-      <div className="mb-14 grid animate-slide-up gap-4 sm:grid-cols-3">
+      <div className="mb-14 grid animate-slide-up gap-5 sm:grid-cols-3">
         {PACKAGES.map((pkg) => (
           <div
             key={pkg.id}
-            className={`relative flex flex-col rounded-ds-lg border p-6 transition-all duration-200 ${
+            className={`group relative flex flex-col rounded-ds-lg p-px transition-all duration-300 ${
               pkg.popular
-                ? 'border-amber-500/50 bg-amber-500/[0.04] shadow-glow'
-                : 'border-[var(--border-hover)]/30 bg-[var(--surface-raised)] hover:border-[var(--border-hover)]'
+                ? 'bg-gradient-to-b from-amber-500/60 via-amber-500/20 to-amber-500/5 shadow-[0_0_40px_rgba(217,119,6,0.15)]'
+                : 'bg-gradient-to-b from-stone-600/30 to-stone-800/10 hover:from-stone-500/40 hover:to-stone-700/20'
             }`}
           >
-            {pkg.popular && (
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full border border-amber-500/30 bg-[var(--surface)] px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-amber-400">
-                Mest populær
-              </span>
-            )}
+            {/* Inner card */}
+            <div className={`relative flex h-full flex-col rounded-[13px] px-6 pb-6 pt-7 ${
+              pkg.popular
+                ? 'bg-[#141110]'
+                : 'bg-[var(--surface-raised)]'
+            }`}>
+              {pkg.popular && (
+                <span className="absolute -top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-amber-600 to-amber-500 px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-lg shadow-amber-600/30">
+                  Mest populær
+                </span>
+              )}
 
-            <div className="mb-4">
-              <span className="font-display text-4xl text-[var(--text-primary)]">
-                {pkg.credits}
-              </span>
-              <span className="ml-1.5 text-sm text-[var(--text-muted)]">kreditter</span>
+              <div className="mb-5">
+                <span className="font-display text-4xl text-[var(--text-primary)]">
+                  {pkg.credits}
+                </span>
+                <span className="ml-1.5 text-sm text-[var(--text-muted)]">kreditter</span>
+              </div>
+
+              <div className="mb-1">
+                <span className="text-2xl font-semibold text-[var(--text-primary)]">
+                  {pkg.priceNok} kr
+                </span>
+              </div>
+
+              <p className="mb-7 text-xs text-[var(--text-faint)]">
+                {pkg.perCredit} kr per kreditt
+              </p>
+
+              <button
+                onClick={() => handleBuy(pkg.id)}
+                disabled={loadingId !== null}
+                className={`mt-auto w-full rounded-ds-md px-4 py-3 text-sm font-semibold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-40 ${
+                  pkg.popular
+                    ? 'bg-gradient-to-r from-amber-600 to-amber-500 text-white shadow-lg shadow-amber-600/25 hover:from-amber-500 hover:to-amber-400 hover:shadow-amber-500/30'
+                    : 'bg-[var(--surface-overlay)] text-[var(--text-secondary)] hover:bg-[var(--border-hover)] hover:text-[var(--text-primary)]'
+                }`}
+              >
+                {loadingId === pkg.id ? 'Sender...' : 'Kjøp'}
+              </button>
             </div>
-
-            <div className="mb-1">
-              <span className="text-2xl font-semibold text-[var(--text-primary)]">
-                {pkg.priceNok} kr
-              </span>
-            </div>
-
-            <p className="mb-6 text-xs text-[var(--text-faint)]">
-              {pkg.perCredit} kr per kreditt
-            </p>
-
-            <button
-              onClick={() => handleBuy(pkg.id)}
-              disabled={loadingId !== null}
-              className={`mt-auto w-full rounded-ds-md px-4 py-3 text-sm font-semibold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-40 ${
-                pkg.popular
-                  ? 'bg-gradient-to-r from-amber-600 to-amber-500 text-white shadow-lg shadow-amber-600/20 hover:from-amber-500 hover:to-amber-400 hover:shadow-amber-500/30'
-                  : 'border border-[var(--border-hover)]/30 bg-[var(--surface-overlay)] text-[var(--text-primary)] hover:border-[var(--border-hover)] hover:bg-[var(--surface-raised)]'
-              }`}
-            >
-              {loadingId === pkg.id ? 'Sender...' : 'Kjøp'}
-            </button>
           </div>
         ))}
       </div>
@@ -124,36 +131,36 @@ function PriserContent() {
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-[0.12em] text-[var(--text-faint)]">
           Kreditter per modell
         </h2>
-        <div className="overflow-hidden rounded-ds-md border border-[var(--border)]">
+        <div className="overflow-hidden rounded-ds-md bg-[var(--surface-raised)]">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[var(--border)] bg-[var(--surface-raised)]">
-                <th className="px-4 py-2.5 text-left font-medium text-[var(--text-muted)]">Modell</th>
-                <th className="px-4 py-2.5 text-left font-medium text-[var(--text-muted)]">Kategori</th>
-                <th className="px-4 py-2.5 text-right font-medium text-[var(--text-muted)]">Kreditter</th>
+              <tr className="border-b border-white/[0.06]">
+                <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-[var(--text-faint)]">Modell</th>
+                <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-[var(--text-faint)]">Kategori</th>
+                <th className="px-5 py-3 text-right text-xs font-medium uppercase tracking-wider text-[var(--text-faint)]">Kreditter</th>
               </tr>
             </thead>
             <tbody>
               {AI_MODELS.map((m, i) => (
                 <tr
                   key={m.id}
-                  className={i < AI_MODELS.length - 1 ? 'border-b border-[var(--border)]/50' : ''}
+                  className={`transition-colors hover:bg-white/[0.02] ${i < AI_MODELS.length - 1 ? 'border-b border-white/[0.04]' : ''}`}
                 >
-                  <td className="px-4 py-2.5 text-[var(--text-primary)]">{m.name}</td>
-                  <td className="px-4 py-2.5">
+                  <td className="px-5 py-3.5 font-medium text-[var(--text-primary)]">{m.name}</td>
+                  <td className="px-5 py-3.5">
                     <span
-                      className={`inline-block rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                      className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
                         m.tag === 'Rask'
-                          ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                          ? 'bg-emerald-500/10 text-emerald-400'
                           : m.tag === 'Balansert'
-                            ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
-                            : 'border-violet-500/20 bg-violet-500/10 text-violet-400'
+                            ? 'bg-amber-500/10 text-amber-400'
+                            : 'bg-violet-500/10 text-violet-400'
                       }`}
                     >
                       {m.tag}
                     </span>
                   </td>
-                  <td className="px-4 py-2.5 text-right tabular-nums text-[var(--text-primary)]">
+                  <td className="px-5 py-3.5 text-right tabular-nums text-[var(--text-secondary)]">
                     {m.creditCost}
                   </td>
                 </tr>
