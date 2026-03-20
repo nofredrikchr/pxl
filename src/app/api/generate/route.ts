@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { expandPrompt } from '@/lib/ai/expand-prompt'
 import { createKieTask } from '@/lib/kie/generate'
+import { getCreditCost } from '@/lib/ai/models'
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,6 +17,21 @@ export async function POST(request: NextRequest) {
 
     if (!prompt || !settings || !model) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    // Deduct credits before generation
+    const creditCost = getCreditCost(model)
+    const { data: newBalance } = await supabase.rpc('deduct_credits', {
+      p_user_id: user.id,
+      p_amount: creditCost,
+      p_reference_id: null,
+    })
+
+    if (newBalance === -1) {
+      return NextResponse.json(
+        { error: 'Ikke nok kreditter', code: 'INSUFFICIENT_CREDITS' },
+        { status: 402 },
+      )
     }
 
     // Step 1: Expand prompt (or use override)

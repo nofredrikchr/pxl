@@ -30,7 +30,7 @@ function SelectField({
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="w-full rounded-ds-md border border-[var(--border)] bg-[var(--surface-raised)]/50 px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none transition-all duration-200 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30"
+        className="w-full appearance-none rounded-ds-md border border-[var(--border)] bg-[var(--surface-raised)] px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none transition-all duration-200 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30"
       >
         {options.map(opt => (
           <option key={opt.value} value={opt.value} className="bg-[var(--surface-raised)]">

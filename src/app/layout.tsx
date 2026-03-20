@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { DM_Sans, Instrument_Serif, JetBrains_Mono } from 'next/font/google'
+import { DM_Sans, Space_Grotesk, JetBrains_Mono } from 'next/font/google'
+import { CreditProvider } from '@/lib/credits/CreditProvider'
 import './globals.css'
 
 const dmSans = DM_Sans({
@@ -7,9 +8,8 @@ const dmSans = DM_Sans({
   variable: '--font-body',
 })
 
-const instrumentSerif = Instrument_Serif({
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
-  weight: '400',
   variable: '--font-display',
 })
 
@@ -30,11 +30,13 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="en"
-      className={`dark ${dmSans.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
+      lang="no"
+      className={`dark ${dmSans.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
     >
       <body className={dmSans.className}>
-        {children}
+        <CreditProvider>
+          {children}
+        </CreditProvider>
       </body>
     </html>
   )

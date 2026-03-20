@@ -2,11 +2,14 @@
 
 import { Suspense, useState, useCallback, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import ModelSelector from '@/components/ModelSelector'
 import SettingsBar, { type Settings } from '@/components/SettingsBar'
 import JsonEditor from '@/components/JsonEditor'
 import ImageResult from '@/components/ImageResult'
+import { useCredits } from '@/lib/credits/CreditProvider'
+import { AI_MODELS } from '@/lib/ai/models'
 
 interface GenerationState {
   id: string | null
@@ -19,6 +22,7 @@ interface GenerationState {
 function DashboardContent() {
   const searchParams = useSearchParams()
   const initialPrompt = searchParams.get('prompt') || ''
+  const { balance, refreshBalance } = useCredits()
 
   const [prompt, setPrompt] = useState(initialPrompt)
   const [model, setModel] = useState('sonnet-4.6')
@@ -120,6 +124,14 @@ function DashboardContent() {
 
       if (!res.ok) {
         const data = await res.json()
+        if (data.code === 'INSUFFICIENT_CREDITS') {
+          setGeneration(prev => ({
+            ...prev,
+            status: 'failed',
+            error: 'INSUFFICIENT_CREDITS',
+          }))
+          return
+        }
         setGeneration(prev => ({
           ...prev,
           status: 'failed',
@@ -145,6 +157,9 @@ function DashboardContent() {
         setJsonOverride(jsonStr)
       }
 
+      // Refresh credit balance after deduction
+      refreshBalance()
+
       if (data.status !== 'completed' && data.status !== 'failed') {
         pollStatus(data.id)
       }
@@ -164,8 +179,12 @@ function DashboardContent() {
   const isGenerating =
     generation.status === 'pending' || generation.status === 'processing'
 
+  const selectedModel = AI_MODELS.find(m => m.id === model)
+  const creditCost = selectedModel?.creditCost ?? 2
+  const isInsufficientCredits = generation.error === 'INSUFFICIENT_CREDITS'
+
   return (
-    <main className="relative z-10 mx-auto max-w-3xl px-4 py-10">
+    <main className="relative z-10 mx-auto max-w-5xl px-6 py-10">
       <div className="mb-10 animate-fade-in">
         <h1 className="font-display text-3xl text-[var(--text-primary)]">
           Generer bilde
@@ -190,7 +209,7 @@ function DashboardContent() {
             onChange={e => setPrompt(e.target.value)}
             rows={4}
             placeholder="Beskriv bildet du vil lage..."
-            className="w-full resize-y rounded-ds-md border border-[var(--border)] bg-[var(--surface-raised)]/50 px-4 py-3 text-[var(--text-primary)] placeholder-[var(--text-faint)] outline-none transition-all duration-200 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30"
+            className="w-full resize-y rounded-ds-md border border-[var(--border)] bg-[var(--surface-raised)] px-4 py-3 text-[var(--text-primary)] placeholder-[var(--text-faint)] outline-none transition-all duration-200 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30"
           />
         </div>
 
@@ -255,14 +274,26 @@ function DashboardContent() {
             isGenerating ? 'animate-pulse-glow' : 'shadow-lg shadow-amber-600/20 hover:shadow-amber-500/30'
           }`}
         >
-          {isGenerating ? 'Genererer...' : 'Generer bilde'}
+          {isGenerating ? 'Genererer...' : `Generer bilde (${creditCost} ${creditCost === 1 ? 'kreditt' : 'kreditter'})`}
         </button>
+
+        {/* Insufficient credits warning */}
+        {isInsufficientCredits && (
+          <div className="animate-slide-up rounded-ds-md border border-amber-500/30 bg-amber-500/[0.07] px-4 py-3 text-center">
+            <p className="text-sm text-amber-300">
+              Ikke nok kreditter.{' '}
+              <Link href="/priser" className="font-medium underline underline-offset-2 hover:text-amber-200">
+                Kjop flere kreditter
+              </Link>
+            </p>
+          </div>
+        )}
 
         {/* Result */}
         <ImageResult
           imageUrl={generation.imageUrl}
-          status={generation.status}
-          error={generation.error}
+          status={isInsufficientCredits ? 'idle' : generation.status}
+          error={isInsufficientCredits ? undefined : generation.error}
           onRetry={handleRetry}
         />
 

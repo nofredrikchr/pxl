@@ -57,6 +57,9 @@ export default function ModelSelector({ value, onChange }: ModelSelectorProps) {
       >
         <ProviderIcon provider={model.provider} />
         <span className="flex-1 text-sm font-medium">{model.name}</span>
+        <span className="text-[10px] tabular-nums text-[var(--text-faint)]">
+          {model.creditCost} {model.creditCost === 1 ? 'kreditt' : 'kreditter'}
+        </span>
         <TagBadge tag={model.tag} />
       </button>
     )
