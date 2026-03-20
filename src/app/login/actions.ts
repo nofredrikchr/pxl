@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 
 export async function login(formData: FormData) {
@@ -20,6 +21,29 @@ export async function login(formData: FormData) {
 
   revalidatePath('/', 'layout')
   redirect('/')
+}
+
+export async function loginWithOAuth(provider: 'github' | 'google') {
+  const supabase = await createClient()
+  const headersList = await headers()
+  const origin = headersList.get('origin') || headersList.get('x-forwarded-host') || 'http://localhost:3000'
+  const protocol = headersList.get('x-forwarded-proto') || 'http'
+  const baseUrl = origin.startsWith('http') ? origin : `${protocol}://${origin}`
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: `${baseUrl}/auth/callback`,
+    },
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  if (data.url) {
+    redirect(data.url)
+  }
 }
 
 export async function logout() {
