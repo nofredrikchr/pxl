@@ -165,20 +165,22 @@ function DashboardContent() {
     generation.status === 'pending' || generation.status === 'processing'
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Generer bilde</h1>
-        <p className="mt-1 text-sm text-gray-400">
+    <main className="relative z-10 mx-auto max-w-3xl px-4 py-10">
+      <div className="mb-10 animate-fade-in">
+        <h1 className="font-display text-3xl text-[var(--text-primary)]">
+          Generer bilde
+        </h1>
+        <p className="mt-2 text-sm text-[var(--text-muted)]">
           Beskriv bildet du vil lage, velg modell og innstillinger
         </p>
       </div>
 
-      <div className="space-y-6">
+      <div className="animate-slide-up space-y-7">
         {/* Prompt Input */}
         <div>
           <label
             htmlFor="prompt"
-            className="mb-1.5 block text-sm font-medium text-gray-300"
+            className="mb-2 block text-sm font-medium text-[var(--text-secondary)]"
           >
             Prompt
           </label>
@@ -188,13 +190,13 @@ function DashboardContent() {
             onChange={e => setPrompt(e.target.value)}
             rows={4}
             placeholder="Beskriv bildet du vil lage..."
-            className="w-full resize-y rounded-lg border border-zinc-800 bg-white/[0.03] px-4 py-3 text-white placeholder-gray-500 outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            className="w-full resize-y rounded-ds-md border border-[var(--border)] bg-[var(--surface-raised)]/50 px-4 py-3 text-[var(--text-primary)] placeholder-[var(--text-faint)] outline-none transition-all duration-200 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30"
           />
         </div>
 
         {/* Model Selector */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-300">
+          <label className="mb-2.5 block text-sm font-medium text-[var(--text-secondary)]">
             AI-modell
           </label>
           <ModelSelector value={model} onChange={setModel} />
@@ -202,7 +204,7 @@ function DashboardContent() {
 
         {/* Settings */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-300">
+          <label className="mb-2.5 block text-sm font-medium text-[var(--text-secondary)]">
             Innstillinger
           </label>
           <SettingsBar settings={settings} onChange={setSettings} />
@@ -215,26 +217,26 @@ function DashboardContent() {
             role="switch"
             aria-checked={advancedMode}
             onClick={() => setAdvancedMode(!advancedMode)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-              advancedMode ? 'bg-blue-600' : 'bg-zinc-700'
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+              advancedMode ? 'bg-amber-600' : 'bg-[var(--surface-overlay)]'
             }`}
           >
             <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
+              className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200 ${
                 advancedMode ? 'translate-x-6' : 'translate-x-1'
               }`}
             />
           </button>
-          <span className="text-sm text-gray-300">Avansert modus</span>
+          <span className="text-sm text-[var(--text-muted)]">Avansert modus</span>
         </div>
 
         {/* JSON Editor (Advanced Mode) */}
         {advancedMode && (
-          <div>
-            <label className="mb-2 block text-sm font-medium text-gray-300">
+          <div className="animate-slide-up">
+            <label className="mb-2 block text-sm font-medium text-[var(--text-secondary)]">
               JSON Prompt Override
             </label>
-            <p className="mb-2 text-xs text-gray-500">
+            <p className="mb-2.5 text-xs text-[var(--text-faint)]">
               Rediger den utvidede JSON-prompten direkte. La stå tom for automatisk utvidelse.
             </p>
             <JsonEditor
@@ -249,7 +251,9 @@ function DashboardContent() {
           type="button"
           onClick={handleGenerate}
           disabled={isGenerating || !prompt.trim()}
-          className="w-full rounded-lg bg-white px-6 py-3.5 text-sm font-semibold text-black transition hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-[#0a0a0a] disabled:cursor-not-allowed disabled:opacity-50"
+          className={`w-full rounded-ds-md bg-gradient-to-r from-amber-600 to-amber-500 px-6 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:from-amber-500 hover:to-amber-400 focus-ring disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:from-amber-600 disabled:hover:to-amber-500 ${
+            isGenerating ? 'animate-pulse-glow' : 'shadow-lg shadow-amber-600/20 hover:shadow-amber-500/30'
+          }`}
         >
           {isGenerating ? 'Genererer...' : 'Generer bilde'}
         </button>
@@ -264,11 +268,11 @@ function DashboardContent() {
 
         {/* Show expanded JSON after generation (non-advanced mode) */}
         {!advancedMode && generation.jsonPrompt && generation.status === 'completed' && (
-          <details className="rounded-lg border border-zinc-800">
-            <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-gray-400 hover:text-gray-300">
+          <details className="rounded-ds-md border border-[var(--border)] transition-colors duration-200">
+            <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-[var(--text-muted)] transition-colors duration-200 hover:text-[var(--text-secondary)]">
               Vis utvidet JSON-prompt
             </summary>
-            <div className="border-t border-zinc-800">
+            <div className="border-t border-[var(--border)]">
               <JsonEditor
                 value={generation.jsonPrompt}
                 onChange={() => {}}
@@ -284,12 +288,12 @@ function DashboardContent() {
 
 export default function DashboardPage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[var(--surface)]">
       <Navbar />
       <Suspense
         fallback={
           <div className="flex items-center justify-center py-20">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-zinc-700 border-t-blue-500" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--border)] border-t-amber-500" />
           </div>
         }
       >

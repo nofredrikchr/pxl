@@ -12,31 +12,41 @@ export default function ImageResult({ imageUrl, status, error, onRetry }: ImageR
 
   if (status === 'pending' || status === 'processing') {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-zinc-800 bg-white/[0.02] py-20">
-        <div className="mb-4 h-10 w-10 animate-spin rounded-full border-4 border-zinc-700 border-t-blue-500" />
-        <p className="text-sm text-gray-400">
+      <div className="animate-fade-in flex flex-col items-center justify-center rounded-ds-lg border border-[var(--border)] bg-[var(--surface-raised)]/30 py-20">
+        {/* Amber spinner */}
+        <div className="relative mb-5">
+          <div className="h-10 w-10 rounded-full border-2 border-[var(--border)]" />
+          <div className="absolute inset-0 h-10 w-10 animate-spin rounded-full border-2 border-transparent border-t-amber-500" style={{ animationDuration: '1s' }} />
+        </div>
+        <p className="text-sm font-medium text-[var(--text-secondary)]">
           {status === 'pending' ? 'Forbereder generering...' : 'Genererer bilde...'}
         </p>
-        <p className="mt-1 text-xs text-gray-600">
+        <p className="mt-1.5 text-xs text-[var(--text-faint)]">
           Dette kan ta opptil 60 sekunder
         </p>
+        {/* Loading bar */}
+        <div className="mt-6 h-px w-40 overflow-hidden rounded-full bg-[var(--border)]">
+          <div className="animate-loading-bar h-full w-1/3 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
+        </div>
       </div>
     )
   }
 
   if (status === 'failed') {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-red-500/20 bg-red-500/5 py-12">
-        <svg className="mb-3 h-8 w-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-        </svg>
-        <p className="text-sm font-medium text-red-400">Generering feilet</p>
-        {error && <p className="mt-1 max-w-md text-center text-xs text-red-400/70">{error}</p>}
+      <div className="animate-fade-in flex flex-col items-center justify-center rounded-ds-lg border border-rose-500/20 bg-[var(--error-muted)] py-12">
+        <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-rose-500/10">
+          <svg className="h-5 w-5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+          </svg>
+        </div>
+        <p className="text-sm font-medium text-rose-400">Generering feilet</p>
+        {error && <p className="mt-1.5 max-w-md text-center text-xs text-rose-400/60">{error}</p>}
         {onRetry && (
           <button
             type="button"
             onClick={onRetry}
-            className="mt-4 rounded-lg border border-zinc-700 px-4 py-2 text-sm text-gray-300 transition hover:border-zinc-500 hover:text-white"
+            className="mt-5 rounded-ds-md border border-[var(--border)] px-5 py-2 text-sm font-medium text-[var(--text-secondary)] transition-all duration-200 hover:border-[var(--border-hover)] hover:text-[var(--text-primary)]"
           >
             Prøv igjen
           </button>
@@ -47,8 +57,8 @@ export default function ImageResult({ imageUrl, status, error, onRetry }: ImageR
 
   if (status === 'completed' && imageUrl) {
     return (
-      <div className="space-y-4">
-        <div className="overflow-hidden rounded-xl border border-zinc-800">
+      <div className="animate-slide-up space-y-4">
+        <div className="overflow-hidden rounded-ds-lg border border-[var(--border)] shadow-ds-lg">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={imageUrl}
@@ -62,7 +72,7 @@ export default function ImageResult({ imageUrl, status, error, onRetry }: ImageR
             target="_blank"
             rel="noopener noreferrer"
             download
-            className="flex-1 rounded-lg border border-zinc-700 py-2.5 text-center text-sm font-medium text-gray-300 transition hover:border-zinc-500 hover:text-white"
+            className="flex-1 rounded-ds-md border border-[var(--border)] py-2.5 text-center text-sm font-medium text-[var(--text-secondary)] transition-all duration-200 hover:border-[var(--border-hover)] hover:text-[var(--text-primary)]"
           >
             Last ned
           </a>
@@ -70,7 +80,7 @@ export default function ImageResult({ imageUrl, status, error, onRetry }: ImageR
             <button
               type="button"
               onClick={onRetry}
-              className="flex-1 rounded-lg border border-zinc-700 py-2.5 text-sm font-medium text-gray-300 transition hover:border-zinc-500 hover:text-white"
+              className="flex-1 rounded-ds-md border border-[var(--border)] py-2.5 text-sm font-medium text-[var(--text-secondary)] transition-all duration-200 hover:border-[var(--border-hover)] hover:text-[var(--text-primary)]"
             >
               Generer på nytt
             </button>

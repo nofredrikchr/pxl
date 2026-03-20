@@ -24,16 +24,16 @@ function SelectField({
 }) {
   return (
     <div className="flex-1">
-      <label className="mb-1.5 block text-xs font-medium text-gray-400">
+      <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--text-faint)]">
         {label}
       </label>
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="w-full rounded-lg border border-zinc-800 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+        className="w-full rounded-ds-md border border-[var(--border)] bg-[var(--surface-raised)]/50 px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none transition-all duration-200 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30"
       >
         {options.map(opt => (
-          <option key={opt.value} value={opt.value} className="bg-[#111]">
+          <option key={opt.value} value={opt.value} className="bg-[var(--surface-raised)]">
             {opt.label}
           </option>
         ))}

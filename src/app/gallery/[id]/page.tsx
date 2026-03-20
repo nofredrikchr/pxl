@@ -91,10 +91,10 @@ export default function GalleryDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a]">
+      <div className="min-h-screen bg-[var(--surface)]">
         <Navbar />
         <div className="flex items-center justify-center py-20">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-zinc-700 border-t-blue-500" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--border)] border-t-amber-500" />
         </div>
       </div>
     )
@@ -102,15 +102,15 @@ export default function GalleryDetailPage() {
 
   if (error || !generation) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a]">
+      <div className="min-h-screen bg-[var(--surface)]">
         <Navbar />
-        <main className="mx-auto max-w-3xl px-4 py-8">
-          <div className="rounded-xl border border-red-500/20 bg-red-500/5 px-6 py-4">
-            <p className="text-sm text-red-400">{error || 'Ikke funnet'}</p>
+        <main className="relative z-10 mx-auto max-w-3xl px-4 py-10">
+          <div className="rounded-ds-lg border border-rose-500/20 bg-rose-500/[0.06] px-6 py-4">
+            <p className="text-sm text-rose-400">{error || 'Ikke funnet'}</p>
           </div>
           <Link
             href="/gallery"
-            className="mt-4 inline-block text-sm text-gray-400 hover:text-white"
+            className="mt-4 inline-block text-sm text-[var(--text-muted)] transition-colors duration-200 hover:text-[var(--text-primary)]"
           >
             &larr; Tilbake til galleri
           </Link>
@@ -120,14 +120,14 @@ export default function GalleryDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[var(--surface)]">
       <Navbar />
 
-      <main className="mx-auto max-w-4xl px-4 py-8">
+      <main className="relative z-10 mx-auto max-w-4xl px-4 py-10">
         {/* Back Link */}
         <Link
           href="/gallery"
-          className="mb-6 inline-flex items-center gap-1 text-sm text-gray-400 transition hover:text-white"
+          className="mb-7 inline-flex items-center gap-1.5 text-sm text-[var(--text-muted)] transition-colors duration-200 hover:text-[var(--text-primary)]"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
@@ -135,11 +135,11 @@ export default function GalleryDetailPage() {
           Tilbake til galleri
         </Link>
 
-        <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
+        <div className="animate-fade-in grid gap-8 lg:grid-cols-[1fr_360px]">
           {/* Image */}
           <div>
             {generation.image_url ? (
-              <div className="overflow-hidden rounded-xl border border-zinc-800">
+              <div className="overflow-hidden rounded-ds-lg border border-[var(--border)] shadow-ds-lg">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={generation.image_url}
@@ -148,8 +148,8 @@ export default function GalleryDetailPage() {
                 />
               </div>
             ) : (
-              <div className="flex aspect-square items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900">
-                <p className="text-sm text-gray-600">
+              <div className="flex aspect-square items-center justify-center rounded-ds-lg border border-[var(--border)] bg-[var(--surface-raised)]">
+                <p className="text-sm text-[var(--text-faint)]">
                   {generation.status === 'processing'
                     ? 'Genererer...'
                     : generation.status === 'failed'
@@ -161,47 +161,29 @@ export default function GalleryDetailPage() {
           </div>
 
           {/* Details Sidebar */}
-          <div className="space-y-6">
+          <div className="animate-slide-up-delayed space-y-6">
             {/* Prompt */}
             <div>
-              <h2 className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500">
+              <h2 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--text-faint)]">
                 Prompt
               </h2>
-              <p className="text-sm leading-relaxed text-gray-200">
+              <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
                 {generation.prompt}
               </p>
             </div>
 
             {/* Settings */}
             <div>
-              <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+              <h2 className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--text-faint)]">
                 Innstillinger
               </h2>
-              <div className="space-y-1.5">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Modell</span>
-                  <span className="text-gray-200">{generation.model_used}</span>
-                </div>
+              <div className="space-y-2">
+                <DetailRow label="Modell" value={generation.model_used} />
                 {generation.settings && (
                   <>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">Bildeformat</span>
-                      <span className="text-gray-200">
-                        {generation.settings.aspect_ratio}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">Opplosning</span>
-                      <span className="text-gray-200">
-                        {generation.settings.resolution}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">Stilpreset</span>
-                      <span className="text-gray-200">
-                        {generation.settings.style_preset}
-                      </span>
-                    </div>
+                    <DetailRow label="Bildeformat" value={generation.settings.aspect_ratio} />
+                    <DetailRow label="Opplosning" value={generation.settings.resolution} />
+                    <DetailRow label="Stilpreset" value={generation.settings.style_preset} />
                   </>
                 )}
               </div>
@@ -209,29 +191,29 @@ export default function GalleryDetailPage() {
 
             {/* Date */}
             <div>
-              <h2 className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500">
+              <h2 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--text-faint)]">
                 Opprettet
               </h2>
-              <p className="text-sm text-gray-300">
+              <p className="text-sm text-[var(--text-muted)]">
                 {formatDate(generation.created_at)}
               </p>
             </div>
 
             {/* Status */}
             {generation.status === 'failed' && generation.error_message && (
-              <div className="rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3">
-                <p className="text-xs font-medium text-red-400">Feil</p>
-                <p className="mt-0.5 text-xs text-red-400/70">
+              <div className="rounded-ds-md border border-rose-500/20 bg-rose-500/[0.06] px-4 py-3">
+                <p className="text-xs font-medium text-rose-400">Feil</p>
+                <p className="mt-1 text-xs text-rose-400/60">
                   {generation.error_message}
                 </p>
               </div>
             )}
 
             {/* Actions */}
-            <div className="space-y-2">
+            <div className="space-y-2.5 pt-2">
               <Link
                 href={`/?prompt=${encodeURIComponent(generation.prompt)}`}
-                className="flex w-full items-center justify-center rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-black transition hover:bg-gray-200"
+                className="flex w-full items-center justify-center rounded-ds-md bg-gradient-to-r from-amber-600 to-amber-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-amber-600/20 transition-all duration-300 hover:from-amber-500 hover:to-amber-400 hover:shadow-amber-500/30"
               >
                 Gjenbruk prompt
               </Link>
@@ -242,7 +224,7 @@ export default function GalleryDetailPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   download
-                  className="flex w-full items-center justify-center rounded-lg border border-zinc-700 px-4 py-2.5 text-sm font-medium text-gray-300 transition hover:border-zinc-500 hover:text-white"
+                  className="flex w-full items-center justify-center rounded-ds-md border border-[var(--border)] px-4 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition-all duration-200 hover:border-[var(--border-hover)] hover:text-[var(--text-primary)]"
                 >
                   Last ned
                 </a>
@@ -252,10 +234,10 @@ export default function GalleryDetailPage() {
                 type="button"
                 onClick={handleDelete}
                 disabled={deleting}
-                className={`w-full rounded-lg border px-4 py-2.5 text-sm font-medium transition disabled:opacity-50 ${
+                className={`w-full rounded-ds-md border px-4 py-2.5 text-sm font-medium transition-all duration-200 disabled:opacity-50 ${
                   confirmDelete
-                    ? 'border-red-500 bg-red-500/10 text-red-400 hover:bg-red-500/20'
-                    : 'border-zinc-700 text-gray-300 hover:border-red-500/50 hover:text-red-400'
+                    ? 'border-rose-500/40 bg-rose-500/10 text-rose-400 hover:bg-rose-500/15'
+                    : 'border-[var(--border)] text-[var(--text-muted)] hover:border-rose-500/30 hover:text-rose-400'
                 }`}
               >
                 {deleting
@@ -272,10 +254,10 @@ export default function GalleryDetailPage() {
                 <button
                   type="button"
                   onClick={() => setShowJson(!showJson)}
-                  className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-gray-500 transition hover:text-gray-300"
+                  className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--text-faint)] transition-colors duration-200 hover:text-[var(--text-muted)]"
                 >
                   <svg
-                    className={`h-3 w-3 transition ${showJson ? 'rotate-90' : ''}`}
+                    className={`h-3 w-3 transition-transform duration-200 ${showJson ? 'rotate-90' : ''}`}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -290,7 +272,7 @@ export default function GalleryDetailPage() {
                   JSON Prompt
                 </button>
                 {showJson && (
-                  <div className="mt-2">
+                  <div className="mt-3 animate-slide-up">
                     <JsonEditor
                       value={JSON.stringify(generation.json_prompt, null, 2)}
                       onChange={() => {}}
@@ -303,6 +285,15 @@ export default function GalleryDetailPage() {
           </div>
         </div>
       </main>
+    </div>
+  )
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between text-sm">
+      <span className="text-[var(--text-muted)]">{label}</span>
+      <span className="font-medium text-[var(--text-secondary)]">{value}</span>
     </div>
   )
 }

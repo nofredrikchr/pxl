@@ -9,15 +9,15 @@ interface ModelSelectorProps {
 }
 
 function TagBadge({ tag }: { tag: string }) {
-  const colors: Record<string, string> = {
-    Rask: 'bg-green-500/15 text-green-400 border-green-500/30',
-    Balansert: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
-    Premium: 'bg-purple-500/15 text-purple-400 border-purple-500/30',
+  const styles: Record<string, string> = {
+    Rask: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    Balansert: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    Premium: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
   }
   return (
     <span
-      className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${
-        colors[tag] || 'bg-zinc-700 text-gray-300 border-zinc-600'
+      className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+        styles[tag] || 'bg-[var(--surface-overlay)] text-[var(--text-muted)] border-[var(--border)]'
       }`}
     >
       {tag}
@@ -31,9 +31,9 @@ function ProviderIcon({ provider }: { provider: string }) {
     <Image
       src={src}
       alt={provider}
-      width={18}
-      height={18}
-      className="flex-shrink-0"
+      width={16}
+      height={16}
+      className="flex-shrink-0 opacity-60"
     />
   )
 }
@@ -49,10 +49,10 @@ export default function ModelSelector({ value, onChange }: ModelSelectorProps) {
         key={model.id}
         type="button"
         onClick={() => onChange(model.id)}
-        className={`flex items-center gap-3 rounded-lg border px-4 py-3 text-left transition ${
+        className={`group flex items-center gap-3 rounded-ds-md border px-4 py-3 text-left transition-all duration-200 ${
           isSelected
-            ? 'border-blue-500 bg-blue-500/10 text-white'
-            : 'border-zinc-800 bg-white/[0.02] text-gray-300 hover:border-zinc-600 hover:bg-white/[0.04]'
+            ? 'border-amber-500/50 bg-amber-500/[0.07] text-[var(--text-primary)] shadow-glow'
+            : 'border-[var(--border)] bg-[var(--surface-raised)]/50 text-[var(--text-secondary)] hover:border-[var(--border-hover)] hover:bg-[var(--surface-raised)]'
         }`}
       >
         <ProviderIcon provider={model.provider} />
@@ -65,7 +65,7 @@ export default function ModelSelector({ value, onChange }: ModelSelectorProps) {
   return (
     <div className="space-y-4">
       <div>
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+        <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--text-faint)]">
           Anthropic
         </p>
         <div className="grid gap-2 sm:grid-cols-3">
@@ -73,7 +73,7 @@ export default function ModelSelector({ value, onChange }: ModelSelectorProps) {
         </div>
       </div>
       <div>
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+        <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--text-faint)]">
           Google
         </p>
         <div className="grid gap-2 sm:grid-cols-2">
