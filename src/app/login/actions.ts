@@ -26,9 +26,18 @@ export async function login(formData: FormData) {
 export async function loginWithOAuth(provider: 'github' | 'google') {
   const supabase = await createClient()
   const headersList = await headers()
-  const origin = headersList.get('origin') || headersList.get('x-forwarded-host') || 'http://localhost:3000'
-  const protocol = headersList.get('x-forwarded-proto') || 'http'
-  const baseUrl = origin.startsWith('http') ? origin : `${protocol}://${origin}`
+
+  let baseUrl: string
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    baseUrl = process.env.NEXT_PUBLIC_SITE_URL
+  } else if (process.env.VERCEL_URL) {
+    baseUrl = `https://${process.env.VERCEL_URL}`
+  } else {
+    const origin = headersList.get('origin')
+    const host = headersList.get('x-forwarded-host') || headersList.get('host')
+    const protocol = headersList.get('x-forwarded-proto') || 'http'
+    baseUrl = origin || (host ? `${protocol}://${host}` : 'http://localhost:3000')
+  }
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
