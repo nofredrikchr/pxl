@@ -18,7 +18,7 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 flex items-center justify-between border-b border-zinc-800 bg-[#111] px-6 py-3">
       <Link href="/" className="text-xl font-bold text-white">
-        Image.ai
+        pxl
       </Link>
 
       <div className="flex items-center gap-6">

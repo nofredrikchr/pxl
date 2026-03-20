@@ -5,7 +5,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Image.ai',
+  title: 'pxl',
   description: 'AI-powered image generation with prompt expansion',
 }
 
