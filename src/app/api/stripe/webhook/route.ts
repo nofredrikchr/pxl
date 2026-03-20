@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe } from '@/lib/stripe/client'
-import { supabaseAdmin } from '@/lib/supabase/admin'
+import { getStripe } from '@/lib/stripe/client'
+import { getSupabaseAdmin } from '@/lib/supabase/admin'
 
 export async function POST(request: NextRequest) {
   const body = await request.text()
@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
 
   let event
   try {
-    event = stripe.webhooks.constructEvent(
+    event = getStripe().webhooks.constructEvent(
       body,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!,
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Idempotency check
-    const { data: existing } = await supabaseAdmin
+    const { data: existing } = await getSupabaseAdmin()
       .from('stripe_purchases')
       .select('status')
       .eq('stripe_session_id', session.id)
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Add credits
-    await supabaseAdmin.rpc('add_credits', {
+    await getSupabaseAdmin().rpc('add_credits', {
       p_user_id: userId,
       p_amount: creditsAmount,
       p_type: 'purchase',
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Mark purchase as completed
-    await supabaseAdmin
+    await getSupabaseAdmin()
       .from('stripe_purchases')
       .update({ status: 'completed' })
       .eq('stripe_session_id', session.id)

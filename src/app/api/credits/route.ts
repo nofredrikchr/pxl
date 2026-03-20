@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { supabaseAdmin } from '@/lib/supabase/admin'
+import { getSupabaseAdmin } from '@/lib/supabase/admin'
 
 export async function GET() {
   try {
@@ -21,7 +21,7 @@ export async function GET() {
     }
 
     // First time user — grant 10 free credits
-    const { data: newBalance } = await supabaseAdmin.rpc('add_credits', {
+    const { data: newBalance } = await getSupabaseAdmin().rpc('add_credits', {
       p_user_id: user.id,
       p_amount: 10,
       p_type: 'free_grant',
